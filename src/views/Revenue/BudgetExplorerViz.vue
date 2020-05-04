@@ -25,26 +25,13 @@
 </template>
 
 <script>
+import Legend from "./Legend";
+import { formatFn, netChangeFormatFn } from "@/utils/formatFns";
 import * as d3 from "d3";
 import d3Tip from "d3-tip";
 import { rollup, group } from "d3-array";
-import Legend from "./Legend";
 import "vue-good-table/dist/vue-good-table.css";
 import { VueGoodTable } from "vue-good-table";
-
-let formatFn = d => {
-  let s = `$${d3
-    .format(",.3s")(Math.abs(d))
-    .replace(/G/, "B")}`;
-  if (d < 0) s = "\u2212" + s;
-  return s;
-};
-
-let netChangeFormatFn = d => {
-  let s = formatFn(d);
-  if (d > 0) s = "+" + s;
-  return s;
-};
 
 export default {
   props: ["width", "fiscalYear", "viewingMode", "rawData"],
