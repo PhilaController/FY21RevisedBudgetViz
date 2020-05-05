@@ -2,14 +2,21 @@
   <div>
     <!-- Bubbles -->
     <div>
-      <Legend :colorScale="fillColorScale" :radiusScale="radiusScale" />
-      <div class="budget-explorer-viz"></div>
+      <Legend
+        :colorScale="fillColorScale"
+        :radiusScale="radiusScale"
+        :sizes="legendConfig.sizes"
+        :label="legendConfig.label"
+        class="viz-legend pb-3"
+      />
+      <div :class="vizClass" class="mt-3"></div>
     </div>
 
     <!-- Table -->
-    <div class="mt-5">
+    <div class="mt-5 d-flex justify-content-center">
       <VueGoodTable
-        ref="budgetRevenueTable"
+        class="table-responsive"
+        ref="budgetTable"
         :columns="tableColumns"
         :rows="tableRows"
         styleClass="vgt-table condensed"
@@ -26,29 +33,34 @@
 
 <script>
 import Legend from "./Legend";
-import { formatFn, netChangeFormatFn } from "@/utils/formatFns";
+import { formatFn, netChangeFormatFn, percentFn } from "@/utils/formatFns";
 import * as d3 from "d3";
 import d3Tip from "d3-tip";
 import { rollup, group } from "d3-array";
 import "vue-good-table/dist/vue-good-table.css";
 import { VueGoodTable } from "vue-good-table";
 
+Array.prototype.move = function(from, to) {
+  this.splice(to, 0, this.splice(from, 1)[0]);
+};
+
 export default {
-  props: ["width", "fiscalYear", "viewingMode", "rawData"],
+  props: [
+    "width",
+    "fiscalYear",
+    "viewingMode",
+    "rawData",
+    "viewingConfig",
+    "legendConfig",
+    "tableConfig",
+    "annotationLabels",
+    "vizClass"
+  ],
   components: { Legend, VueGoodTable },
   data() {
     return {
-      margin: { top: 30, right: 10, bottom: 10, left: 10 },
+      margin: { top: 10, right: 5, bottom: 10, left: 5 },
 
-      // How to arrange the different viewing modes
-      gridConfig: {
-        "All Changes": { columns: 1, height: 250 },
-        "By Revenue Source": {
-          columns: 3,
-          height: 300,
-          groupby: "revenue_source"
-        }
-      },
       // Components of the viz
       radiusScale: null,
       fillColorScale: null,
@@ -63,7 +75,8 @@ export default {
       splitView: false, // is the viewing mode one big circle or split
       addAnnotations: false, // arrows/labels showing cuts/increases?,
       sortColumn: "percent_diff",
-      sortOrder: "asc"
+      sortOrder: "asc",
+      collapsableColumn: true
     };
   },
   mounted() {
@@ -72,7 +85,8 @@ export default {
       this.tooltip = d3Tip().attr("class", "tooltip");
 
       // Setup the radius scale
-      this.radiusScale = this.getRadiusScale(this.rawData, 40);
+      let maxPixels = window.screen.width > 768 ? 40 : 20;
+      this.radiusScale = this.getRadiusScale(this.rawData, maxPixels);
 
       // Sort bubbles by percent change
       this.yOffsetScale = d3
@@ -99,16 +113,17 @@ export default {
             "#398649"
           ])
         )
-        .domain([-0.3, 0.3])
+        .domain(this.legendConfig.colorScaleDomain)
         .clamp(true);
 
+      // Style the percent diff column
       this.colorPercentDiffCells();
 
       // Initialize the "nodes" with the data we've loaded
       this.nodes = this.createNodes(this.rawData);
 
       // Initialize svg and innerSVG, which we will attach all our drawing objects to.
-      this.createCanvas(".budget-explorer-viz");
+      this.createCanvas(`.${this.vizClass}`);
 
       /* Invoke the tip in the context of your visualization */
       this.svg.call(this.tooltip);
@@ -121,53 +136,39 @@ export default {
     });
   },
   computed: {
+    showAnnotations() {
+      return window.screen.width >= 1000;
+    },
     groupOptions() {
-      let t = this.viewingMode !== "All Changes";
+      let t = this.tableConfig.grouped.indexOf(this.viewingMode) !== -1;
       return {
         enabled: t,
         collapsable: t
       };
     },
     tableColumns() {
-      let percentFn = d => {
-        let s = `${(100 * Math.abs(d)).toFixed(0)}%`;
-        if (d < 0) s = "\u2212" + s;
-        return s;
-      };
+      // Reorder the header columns in the table
+      let groupby = this.tableConfig.groupby[this.viewingMode];
+      let i;
+      for (i = 0; i < this.tableConfig.headerColumns.length; i++) {
+        if (this.tableConfig.headerColumns[i].field == groupby) break;
+      }
 
-      let cols;
-      if (this.viewingMode !== "By Revenue Source")
-        cols = [
-          {
-            label: "Name",
-            field: "name"
-          },
-          {
-            label: "Revenue Source",
-            field: "revenue_source"
-          }
-        ];
-      else
-        cols = [
-          {
-            label: "Revenue Source",
-            field: "revenue_source"
-          },
-          {
-            label: "Name",
-            field: "name"
-          }
-        ];
+      // Reorder
+      let cols = Object.assign([], this.tableConfig.headerColumns);
+      cols.move(i, 0);
 
+      // Add the rest of the columns we need
+      let tag = this.fiscalYear.toString().slice(2);
       cols.push(
         {
-          label: "Proposed",
+          label: `FY${tag} Proposed`,
           field: `${this.fiscalYear} (Proposed)`,
           type: "number",
           formatFn: formatFn
         },
         {
-          label: "Revised",
+          label: `FY${tag} Revised`,
           field: `${this.fiscalYear} (Revised)`,
           type: "number",
           formatFn: formatFn
@@ -194,15 +195,17 @@ export default {
         col,
         grouped;
 
-      if (this.viewingMode == "By Revenue Source")
-        grouped = group(this.rawData, d => d.revenue_source);
-      else grouped = group(this.rawData, d => d.name);
+      // Group the data by the necessary field
+      let groupby = this.tableConfig.groupby[this.viewingMode];
+      grouped = group(this.rawData, d => d[groupby]);
 
       let id = 0;
       for (let [k, v] of grouped) {
+        // Initialize a new row in the table
         row = { id: id, children: [] };
-        if (this.viewingMode == "By Revenue Source") row["revenue_source"] = k;
-        else row["name"] = k;
+
+        // Add the groupby field
+        row[groupby] = k;
 
         // Total Proposed
         row[`${this.fiscalYear} (Proposed)`] = d3.sum(
@@ -221,20 +224,30 @@ export default {
           row[`${this.fiscalYear} (Revised)`] -
           row[`${this.fiscalYear} (Proposed)`];
 
-        // if (row["diff"] == 0) continue;
+        // Don't add rows for empty line
+        if (this.isEmptyLineItem(row)) continue;
 
         // Percent diff
         row["percent_diff"] =
           row["diff"] / row[`${this.fiscalYear} (Proposed)`];
 
+        // Add the row
         out.push(row);
 
+        // Update the child
+        let tableColumnFields = this.tableColumns.map(d => d.field);
+        let childCol;
         for (let i = 0; i < v.length; i++) {
           child = {};
 
           // Name and major class
-          child["name"] = v[i].name;
-          child["revenue_source"] = v[i].revenue_source;
+          for (let j = 0; j < tableColumnFields.length; j++) {
+            childCol = tableColumnFields[j];
+            if (childCol in this.tableConfig.childColumns)
+              childCol = this.tableConfig.childColumns[childCol];
+
+            if (childCol in v[i]) child[tableColumnFields[j]] = v[i][childCol];
+          }
 
           // Revised
           child[`${this.fiscalYear} (Revised)`] =
@@ -254,8 +267,7 @@ export default {
             child["diff"] / v[i][`${this.fiscalYear} (Proposed)`];
 
           // Add if there's a difference
-          // if (child["diff"] != 0)
-          row["children"].push(child);
+          if (!this.isEmptyLineItem(child)) row["children"].push(child);
         }
         id += 1;
       }
@@ -264,13 +276,13 @@ export default {
       return out.sort((x, y) => sortFn(x[this.sortColumn], y[this.sortColumn]));
     },
     height() {
-      return this.gridConfig[this.viewingMode].height;
+      return this.viewingConfig[this.viewingMode].height;
     },
     tooltipConfig() {
       return [
         {
-          title: "Revenue Source",
-          data_field: "revenue_source"
+          title: "Major Class",
+          data_field: "major_class_description"
         },
         {
           title: `${this.fiscalYear} (Original)`,
@@ -301,10 +313,10 @@ export default {
       return this.height - this.margin.top - this.margin.bottom;
     },
     force_type() {
-      return "charge";
+      return this.viewingConfig[this.viewingMode].force_type;
     },
     force_strength() {
-      return 0.1;
+      return this.viewingConfig[this.viewingMode].force_strength;
     }
   },
   watch: {
@@ -339,23 +351,78 @@ export default {
     }
   },
   methods: {
+    isEmptyLineItem(d) {
+      return (
+        (d[`${this.fiscalYear} (Revised)`] == 0) &
+        (d[`${this.fiscalYear} (Proposed)`] == 0)
+      );
+    },
+    hasSummaryRow() {
+      return $(this.$refs.budgetTable.$el).find(".summary-row").length > 0;
+    },
+    addSummaryRow() {
+      let table = $(this.$refs.budgetTable.$el).find("table:last-child");
+
+      let proposed = d3.sum(
+        this.tableRows,
+        d => d[`${this.fiscalYear} (Proposed)`]
+      );
+      let revised = d3.sum(
+        this.tableRows,
+        d => d[`${this.fiscalYear} (Revised)`]
+      );
+      let diff = revised - proposed;
+      let percent_diff = diff / proposed;
+
+      table.append(
+        `<tfoot class='summary-row'>
+        <th class="vgt-row-header vgt-left-align">Total</th>
+        <th class="vgt-row-header vgt-left-align"></th>
+        <th class="vgt-row-header vgt-right-align">${formatFn(proposed)}</th>
+        <th class="vgt-row-header vgt-right-align">${formatFn(revised)}</th>
+        <th class="vgt-row-header vgt-right-align">${netChangeFormatFn(
+          diff
+        )}</th>
+        <th class="vgt-row-header vgt-right-align">${percentFn(
+          percent_diff
+        )}</th>
+        </tfoot>`
+      );
+    },
     colorPercentDiffCells() {
       if (this.fillColorScale) {
-        let rows = $(this.$refs.budgetRevenueTable.$el).find("tr");
+        if (!this.hasSummaryRow()) this.addSummaryRow();
 
-        let cellType = this.viewingMode !== "All Changes" ? "th" : "td";
+        let rows = $(this.$refs.budgetTable.$el).find("tr");
+        let cellType =
+          this.tableConfig.grouped.indexOf(this.viewingMode) !== -1
+            ? "th"
+            : "td";
 
-        rows.find(`${cellType}:nth-child(6)`).each((i, x) => {
+        let cells = rows.find(`${cellType}:nth-child(6)`);
+
+        cells.each((i, x) => {
           let p = $(x)[0].innerText.slice(0, -1);
           if (p.startsWith("\u2212")) p = (-1 * parseFloat(p.slice(1))) / 100;
           else p = parseFloat(p) / 100;
 
-          $(x).css("background-color", this.fillColorScale(p));
-          $(x).css("border-bottom-color", this.fillColorScale(p));
+          let color = this.fillColorScale(p);
+          if (color) {
+            color = `${color.slice(0, -1)}, 0.5)`;
+            $(x).css("background-color", color);
+            if (i !== cells.length - 2) $(x).css("border-bottom-color", color);
+          }
         });
+
+        let R = $(this.$refs.budgetTable.$el).find("tr");
+        R.eq(rows.length - 2)
+          .find(`${cellType}`)
+          .css("border-bottom-color", "#2c3e50");
       }
     },
     onSortChange(params) {
+      $(".summary-row").remove();
+
       this.sortColumn = params[0].field;
       this.sortOrder = params[0].type;
 
@@ -367,6 +434,9 @@ export default {
       */
       // Only need to do something if nodes exist
       if (this.nodes) {
+        // Remove summary row from table
+        $(".summary-row").remove();
+
         // Update the radii based on the new selected years
         this.nodes = this.updateNodes(this.nodes);
 
@@ -375,7 +445,7 @@ export default {
 
         // Circles with new data
         let circles = this.innerSVG.selectAll(".bubble").data(
-          this.nodes, //.filter(d => d.actual_radius !== 0),
+          this.nodes.filter(d => d.actual_radius !== 0),
           d => d.id
         );
 
@@ -423,7 +493,9 @@ export default {
         this.setViewingMode(false);
 
         // (re)initialize the forces
-        this.forceSim.force(this.force_type).initialize(this.nodes);
+        this.forceSim
+          .force(this.force_type)
+          .initialize(this.nodes.filter(d => d.actual_radius !== 0));
       }
     },
 
@@ -525,10 +597,10 @@ export default {
 
       return myNodes;
     },
-    createCanvas() {
+    createCanvas(canvasSelector) {
       // Create a SVG element inside the provided selector with desired size.
       this.svg = d3
-        .select(".budget-explorer-viz")
+        .select(canvasSelector)
         .append("svg")
         .attr("width", this.width)
         .attr("height", this.height);
@@ -546,7 +618,7 @@ export default {
       this.innerSVG
         .selectAll(".bubble")
         .data(
-          this.nodes, //.filter(d => d.actual_radius !== 0),
+          this.nodes.filter(d => d.actual_radius !== 0),
           d => d.id
         )
         .enter()
@@ -591,7 +663,7 @@ export default {
         };
       } else {
         // This is the key the grid will be grouped by
-        groupby = this.gridConfig[groupby].groupby;
+        groupby = this.viewingConfig[groupby].groupby;
 
         // Determine the labels to show
         labels = Array.from(
@@ -608,11 +680,11 @@ export default {
           )
         )
           .sort((x, y) => d3.ascending(x[1], y[1]))
-          // .filter(item => item[1] !== 0)
+          .filter(item => item[1] !== 0)
           .map(item => item[0])
           .filter((value, index, self) => self.indexOf(value) === index);
 
-        let numCols = this.gridConfig[this.viewingMode].columns;
+        let numCols = this.viewingConfig[this.viewingMode].columns;
         out = {
           labels: labels,
           gridDimensions: {
@@ -672,11 +744,6 @@ export default {
               y: -1000
             };
           }
-
-          if (this.viewingMode == "By Revenue Source") {
-            target.y =
-              target.y + Math.round(this.yOffsetScale(node.percent_diff));
-          }
         }
         return target;
       };
@@ -691,7 +758,7 @@ export default {
         .attr("cy", d => d.y);
 
       if (
-        !this.splitView &&
+        this.showAnnotations & !this.splitView &&
         !this.addAnnotations &&
         this.forceSim.alpha() < 0.9
       ) {
@@ -707,7 +774,7 @@ export default {
         let xcenter = 0.5 * (xextent[0] + xextent[1]);
 
         // Add annotioan labels
-        let labels = ["Revenue increases", "Revenue decreases"];
+        let labels = this.annotationLabels;
         let t = d3.transition().duration(1000);
         let texts = this.svg.selectAll("text").data(yextent);
         texts
@@ -720,7 +787,7 @@ export default {
           .attr("font-family", "sans-serif")
           .merge(texts)
           .transition(t)
-          .attr("x", xextent[1])
+          .attr("x", xextent[1] + 20)
           .attr("y", (d, i) => {
             let offset = i == 0 ? 10 : -10;
             return yextent[i] + this.margin.top + offset;
@@ -739,7 +806,7 @@ export default {
           .merge(lines)
           .transition(t)
           .attr("x1", xcenter)
-          .attr("x2", xextent[1] - 10)
+          .attr("x2", xextent[1] + 20 - 10)
           .attr("y1", (d, i) => {
             let offset = i == 0 ? 10 : -10;
             return yextent[i] + this.margin.top + offset;
@@ -778,8 +845,36 @@ export default {
         })
         .strength(+this.force_strength);
 
-      // Specify the target of the force layout for each of the circles
+      // Assign target X/Y forces
       this.forceSim.force("x", targetForceX).force("y", targetForceY);
+
+      // Transition the forces gradually when switching views
+      if (addForceTransition) {
+        this.forceSim.force("x").strength(0);
+        this.forceSim.force("y").strength(0);
+
+        let endTime = 1000;
+        let transitionTimer = d3.timer(elapsed => {
+          let dt = elapsed / endTime;
+
+          // Gradually scale up x/y forces
+          targetForceX = d3
+            .forceX(function(d) {
+              return targetFunction(d).x;
+            })
+            .strength(Math.pow(dt, 1) * this.force_strength);
+          targetForceY = d3
+            .forceY(function(d) {
+              return targetFunction(d).y;
+            })
+            .strength(Math.pow(dt, 1) * this.force_strength);
+
+          // Assign the forces
+          this.forceSim.force("x", targetForceX).force("y", targetForceY);
+
+          if (dt >= 1.0) transitionTimer.stop();
+        });
+      }
 
       // Restart the force layout simulation
       this.forceSim
@@ -797,7 +892,7 @@ export default {
       // Configure the force layout holding the bubbles apart
       this.forceSim = d3
         .forceSimulation()
-        .nodes(this.nodes)
+        .nodes(this.nodes.filter(d => d.actual_radius !== 0))
         .velocityDecay(0.3)
         .on("tick", this.ticked);
 
@@ -828,7 +923,7 @@ export default {
        */
       let currentLabels = mode.labels;
       let data = [];
-      let groupby = this.gridConfig[this.viewingMode].groupby;
+      let groupby = this.viewingConfig[this.viewingMode].groupby;
       for (let i = 0; i < currentLabels.length; i++) {
         let t = currentLabels[i];
         let change = d3.sum(
@@ -963,6 +1058,9 @@ export default {
 </script>
 
 <style>
+.viz-legend {
+  border-bottom: 2px solid #deedfc;
+}
 /* tooltip */
 .tooltip-line {
   border-bottom: 1px solid #f0f0f0;
@@ -971,7 +1069,7 @@ export default {
   padding: 0 7px 0 7px;
 }
 .tooltip-line-header {
-  font-weight: bold;
+  font-weight: 700;
   text-align: left;
 }
 
@@ -979,7 +1077,7 @@ export default {
   margin-bottom: 5px;
   border-bottom: 1px solid #cdcdcd;
   text-align: center;
-  font-weight: bold;
+  font-weight: 700;
   padding-bottom: 5px;
 }
 
@@ -994,7 +1092,7 @@ export default {
   pointer-events: none;
   background: #fff;
   opacity: 0.9;
-  color: black;
+  color: #2c3e50;
   padding: 10px;
   width: 350px;
   font-size: 1rem !important;
@@ -1019,5 +1117,27 @@ export default {
 }
 .bubble_group_sublabel_positive {
   fill: #398649;
+}
+.summary-row th {
+  border-top-color: black !important;
+}
+
+@media screen and (max-width: 768px) {
+  .bubble_group_label {
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  .bubble_group_sublabel {
+    font-size: 0.9rem;
+  }
+
+  .tooltip {
+    line-height: 1;
+    font-weight: 500;
+    padding: 7px;
+    padding: 5px;
+    width: 250px;
+    font-size: 0.8rem !important;
+  }
 }
 </style>

@@ -2,7 +2,7 @@ import Vue from "vue";
 import Router from "vue-router";
 import Home from "@/views/Home";
 import Spending from "@/views/BudgetExplorer/Spending";
-// import Revenue from "@/views/Revenue";
+import Revenue from "@/views/BudgetExplorer/Revenue";
 
 Vue.use(Router);
 
@@ -20,9 +20,9 @@ export default new Router({
       path: "/spending",
       component: Spending
     },
-    // {
-    //   path: "/revenue",
-    //   component: Revenue
-    // },
+    {
+      path: "/revenue",
+      component: Revenue
+    },
   ]
 });

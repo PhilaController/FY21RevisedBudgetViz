@@ -1,31 +1,37 @@
 <template>
   <div class="home-page text-left ml-3 mr-3">
     <p>
-      On May 1, 2020, Mayor Kenney released a
+      In response to declining tax revenues related to the COVID-19 pandemic,
+      Mayor Kenney released a
       <a
+        class="text-link"
         href="https://www.phila.gov/media/20200501080717/REVISED-FY21-25-Five-Year-Plan-Proposed.pdf"
         target="blank_"
       >revised budget proposal</a> as part of the City’s Five
-      Year Financial Plan. The budget includes large spending cuts and declining
-      tax revenues, reflecting the economic impact of the COVID-19 crisis. As
-      part of an
+      Year Financial Plan on May 1, 2020. The budget, which includes spend large
+      spending cuts, reflects the economic impact of the COVID-19 crisis and the
+      City’s response to it.
+    </p>
+    <p>
+      As part of an
       <a
+        class="text-link"
         href="https://controller.phila.gov/philadelphia-audits/covid19-fiscal-impact/"
         target="blank_"
-      >ongoing analysis</a> of the COVID-19 impact on City finances, the
-      City Controller’s Office is releasing a tool to visualize and better
-      understand the major changes in the newly released budget. The tool is
-      intended to serve as a resource for policymakers and Philadelphians alike,
-      bringing necessary transparency to the City’s budgeting process.
+      >ongoing analysis</a>
+      of the COVID-19 impact on City finances, the City
+      Controller’s Office is releasing a tool to visualize and better understand the
+      major changes in the newly released budget. The tool is intended to serve as a
+      resource for policymakers and Philadelphians alike, bringing necessary
+      transparency to the City’s budgeting process.
     </p>
 
     <p>
-      With declining revenue sources, the City has been forced to make difficult
-      choices to reduce spending. The Controller’s Office believes transparency
-      is crucial to evaluating those choices. Ultimately, the City must devise a
-      budget that maintains City services and demonstrates efficient and
-      effective use of taxpayer money, particularly at a time of historic
-      unemployment and unprecedented challenges for local businesses.
+      Ultimately, the goal of any city government is to provide vital services
+      to residents through the efficient and effective use of taxpayer money. At
+      a time of historic unemployment, declining tax revenues and unprecedented
+      challenges for local businesses, striving to reach this goal through
+      strategic budget decisions is more important than ever.
     </p>
 
     <p class="font-weight-bold">

@@ -8,11 +8,10 @@
 import * as d3 from "d3";
 
 export default {
-  props: ["radiusScale", "width", "sizes"],
+  props: ["radiusScale", "width", "sizes", "height"],
   data() {
     return {
-      margin: { right: 40, bottom: 20, left: 40 },
-      height: 130
+      margin: { right: 40, bottom: 0, left: 40, top: 0 }
     };
   },
   watch: {
@@ -47,7 +46,7 @@ export default {
           .append("text")
           .text(d => `$${d3.format(",.1s")(d)}`)
           .attr("fill", "#2c3e50")
-          .attr("font-size", "0.9rem")
+          .attr("font-size", "1.1rem")
           .attr("font-family", "sans-serif")
           .attr("dx", "4.5em")
           .attr(

@@ -1,5 +1,8 @@
 <template>
-  <div class="btn-group btn-group-toggle" data-toggle="buttons">
+  <div
+    class="radio-toolbar-wrapper btn-group btn-group-toggle d-flex justify-content-center"
+    data-toggle="buttons"
+  >
     <label
       class="btn btn-primary"
       v-for="item in items"
@@ -59,6 +62,14 @@ export default {
 .active {
   background-color: #0f4d90 !important;
   border-color: #0f4d90 !important;
+}
+@media screen and (max-width: 768px) {
+  .radio-toolbar-wrapper {
+    flex-wrap: wrap;
+  }
+  .radio-toolbar-wrapper > label {
+    width: 165px;
+  }
 }
 </style>
 

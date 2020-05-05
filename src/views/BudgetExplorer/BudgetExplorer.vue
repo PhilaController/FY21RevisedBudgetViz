@@ -3,8 +3,8 @@
   <div class="budget-explorer-container">
     <!-- User Toolbar -->
     <div class="title d-flex justify-content-center">
-      <span>
-        Revised revenues for the fiscal year&nbsp;
+      <div>
+        Revised {{ label }} for the fiscal year&nbsp;
         <!-- Year Selection -->
         <Dropdown
           class="title-dropdown"
@@ -13,29 +13,34 @@
           :defaultValue="fiscalYear"
           @change="updateYearDropdown($event, 'fiscalYear')"
         />&nbsp;budget
-      </span>
-    </div>
-    <div class="total-change text-center">{{ netChangeFormatFn(totalChange) }}</div>
-    <div class="budget-explorer-toolbar mt-3">
-      <div class="d-flex align-items-center justify-content-center">
-        <div class="radio-button-toolbar ml-5">
-          <RadioButtonToolbar
-            :options="viewingOptions"
-            :defaultValue="selectedViewingOption"
-            ref="viewingOptionsToolbar"
-            @change="setViewingOption"
-          />
-        </div>
       </div>
+    </div>
+
+    <!-- The total change -->
+    <div class="total-change text-center mt-3 pb-3">{{ formattedTotalChange }}</div>
+
+    <!-- Radio toolbar for different views -->
+    <div class="budget-explorer-toolbar d-flex align-items-center justify-content-center mt-3">
+      <RadioButtonToolbar
+        :options="viewingOptions"
+        :defaultValue="selectedViewingOption"
+        ref="viewingOptionsToolbar"
+        @change="setViewingOption"
+      />
     </div>
 
     <!-- Budget Explorer Viz -->
     <BudgetExplorerViz
       class="mt-5"
-      :width="1000"
+      :width="totalWidth"
       :fiscalYear="fiscalYear"
-      :viewingMode="selectedViewingOption"
       :rawData="rawData"
+      :viewingMode="selectedViewingOption"
+      :viewingConfig="viewingConfig"
+      :tableConfig="tableConfig"
+      :legendConfig="legendConfig"
+      :annotationLabels="annotationLabels"
+      :vizClass="vizClass"
     />
   </div>
 </template>
@@ -45,18 +50,27 @@ import * as d3 from "d3";
 import Dropdown from "./Dropdown";
 import RadioButtonToolbar from "./RadioButtonToolbar";
 import BudgetExplorerViz from "./BudgetExplorerViz";
+import { netChangeFormatFn } from "@/utils/formatFns";
 
 // Years to show
 const YEARS = [2020, 2021, 2022, 2023, 2024, 2025];
 
 export default {
   components: { Dropdown, RadioButtonToolbar, BudgetExplorerViz },
+  props: [
+    "label",
+    "rawData",
+    "tableConfig",
+    "legendConfig",
+    "viewingConfig",
+    "viewingOptions",
+    "annotationLabels",
+    "vizClass"
+  ],
   data() {
     return {
-      rawData: require("@/data/revenue_revisions.json"),
       fiscalYearOptions: YEARS,
-      viewingOptions: ["All Changes", "By Revenue Source"],
-      selectedViewingOption: "All Changes",
+      selectedViewingOption: this.viewingOptions[0],
       fiscalYear: 2021
     };
   },
@@ -65,6 +79,7 @@ export default {
   },
   methods: {
     updateTotalChangeColor() {
+      // Green or red?
       if (this.totalChange > 0) {
         $(".total-change")
           .addClass("green")
@@ -75,18 +90,6 @@ export default {
           .removeClass("green");
       }
     },
-    formatFn(d) {
-      let s = `$${d3
-        .format(",.3s")(Math.abs(d))
-        .replace(/G/, "B")}`;
-      if (d < 0) s = "\u2212" + s;
-      return s;
-    },
-    netChangeFormatFn(d) {
-      let s = this.formatFn(d);
-      if (d > 0) s = "+" + s;
-      return s;
-    },
     setViewingOption(value) {
       this.selectedViewingOption = value;
     },
@@ -96,6 +99,12 @@ export default {
     }
   },
   computed: {
+    totalWidth() {
+      return Math.min(window.screen.width * 0.9, 1000);
+    },
+    formattedTotalChange() {
+      return netChangeFormatFn(this.totalChange);
+    },
     totalChange() {
       let out = 0,
         row;
@@ -137,8 +146,9 @@ export default {
   border-color: #2176d2;
 }
 .total-change {
-  font-size: 2.2rem;
+  font-size: 2.5rem;
   font-weight: 700;
+  border-bottom: 2px solid #deedfc;
 }
 .green {
   color: #398649;

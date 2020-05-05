@@ -8,12 +8,11 @@
 import * as d3 from "d3";
 
 export default {
-  props: ["colorScale", "width"],
+  props: ["colorScale", "width", "height"],
   data() {
     return {
-      margin: { right: 40, bottom: 30, left: 40 },
-      barHeight: 20,
-      height: 50
+      margin: { right: 30, bottom: 30, left: 30 },
+      barHeight: 20
     };
   },
   computed: {

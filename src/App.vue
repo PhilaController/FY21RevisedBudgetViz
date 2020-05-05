@@ -3,7 +3,7 @@
     <div id="nav">
       <router-link to="/" class="my-nav-link">Home</router-link>
       <router-link to="/spending" class="my-nav-link">Spending</router-link>
-      <!-- <router-link to="/revenue" class="my-nav-link">Revenue</router-link> -->
+      <router-link to="/revenue" class="my-nav-link">Revenue</router-link>
     </div>
     <transition name="fade" mode="out-in">
       <keep-alive>
