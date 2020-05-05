@@ -9,6 +9,13 @@ module.exports = {
       jquery: "jQuery",
       $: "jQuery"
     },
+    entry: {
+      main: './src/main.js',
+      browserSupport: './src/browserSupport.js'
+    },
+    output: {
+      filename: '[name].[hash:8].bundle.js'
+    },
     plugins: [
       new webpack.ProvidePlugin({
         $: "jquery",

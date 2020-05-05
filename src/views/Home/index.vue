@@ -7,10 +7,16 @@
         class="text-link"
         href="https://www.phila.gov/media/20200501080717/REVISED-FY21-25-Five-Year-Plan-Proposed.pdf"
         target="blank_"
-      >revised budget proposal</a> as part of the City’s Five
-      Year Financial Plan on May 1, 2020. The budget, which includes spend large
-      spending cuts, reflects the economic impact of the COVID-19 crisis and the
-      City’s response to it.
+      >revised budget proposal</a>
+      as part of the City’s Five
+      Year Financial Plan on May 1, 2020. Relative to the
+      <a
+        class="text-link"
+        href="https://www.phila.gov/media/20200324135241/FYP-FullLayout-Final_ONLINE_3.23.pdf"
+        target="blank_"
+      >original March budget</a>,
+      the new proposal includes large spending cuts, reflecting the economic
+      impact of the COVID-19 crisis and the City’s response to it.
     </p>
     <p>
       As part of an
@@ -34,11 +40,35 @@
       strategic budget decisions is more important than ever.
     </p>
 
+    <p>
+      The visualization includes data on planned spending and estimated revenue
+      for the City's General Fund for fiscal years 2020 through 2025. Spending
+      data can be broken down by fiscal year, City department, spending class,
+      and spending category. Additionally, revenue data can be viewed by fiscal
+      year and revenue source.
+    </p>
+
     <p class="font-weight-bold">
       View the changes for
       <router-link to="/spending" class="text-link">budgeted spending</router-link>&nbsp;or
       <router-link to="/revenue" class="text-link">projected revenue</router-link>.
     </p>
+
+    <div class="footnotes">
+      <h3>Sources</h3>
+      <hr class="titlebar" />
+      <p>
+        All data is taken directly from City budget documents. The
+        visualization shows the difference between the revised Five Year Plan,
+        as released May 1, and the original proposal from March 5.
+        These budget documents can be found
+        <a
+          class="text-link"
+          href="https://www.phila.gov/documents/mayor-kenneys-fiscal-year-2021-budget/"
+          target="blank_"
+        >here</a>.
+      </p>
+    </div>
   </div>
 </template>
 
@@ -48,5 +78,12 @@ export default {
   components: {}
 };
 </script>
+
+
+<style>
+.footnotes {
+  margin-top: 100px;
+}
+</style>
 
 

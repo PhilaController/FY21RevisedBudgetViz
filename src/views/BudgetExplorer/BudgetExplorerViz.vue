@@ -13,7 +13,11 @@
     </div>
 
     <!-- Table -->
-    <div class="mt-5 d-flex justify-content-center">
+    <div class="mt-5 d-flex flex-column align-items-center justify-content-center">
+      <p
+        class="font-italic"
+        v-if="groupedTable"
+      >Note: table rows can be expanded for more details by clicking on the first cell of each row.</p>
       <VueGoodTable
         class="table-responsive"
         ref="budgetTable"
@@ -139,11 +143,13 @@ export default {
     showAnnotations() {
       return window.screen.width >= 1000;
     },
+    groupedTable() {
+      return this.tableConfig.grouped.indexOf(this.viewingMode) !== -1;
+    },
     groupOptions() {
-      let t = this.tableConfig.grouped.indexOf(this.viewingMode) !== -1;
       return {
-        enabled: t,
-        collapsable: t
+        enabled: this.groupedTable,
+        collapsable: this.groupedTable
       };
     },
     tableColumns() {
@@ -875,14 +881,6 @@ export default {
           if (dt >= 1.0) transitionTimer.stop();
         });
       }
-
-      // Restart the force layout simulation
-      this.forceSim
-        .alpha(1)
-        .alphaMin(0.001)
-        .alphaDecay(0.001)
-        .alphaTarget(0)
-        .restart();
     },
     addForceLayout() {
       if (this.forceSim) {
@@ -894,6 +892,10 @@ export default {
         .forceSimulation()
         .nodes(this.nodes.filter(d => d.actual_radius !== 0))
         .velocityDecay(0.3)
+        .alpha(1)
+        .alphaMin(0.88)
+        .alphaTarget(0.87)
+        .alphaDecay(0.005)
         .on("tick", this.ticked);
 
       // Decide what kind of force layout to use: "collide" or "charge"

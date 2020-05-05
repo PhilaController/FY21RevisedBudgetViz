@@ -3,6 +3,7 @@ import Router from "vue-router";
 import Home from "@/views/Home";
 import Spending from "@/views/BudgetExplorer/Spending";
 import Revenue from "@/views/BudgetExplorer/Revenue";
+import Guide from "@/views/Guide";
 
 Vue.use(Router);
 
@@ -23,6 +24,10 @@ export default new Router({
     {
       path: "/revenue",
       component: Revenue
+    },
+    {
+      path: "/guide",
+      component: Guide
     },
   ]
 });

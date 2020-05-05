@@ -1,3 +1,4 @@
+import "core-js/stable";
 import Vue from "vue";
 import App from "@/App";
 import router from "@/router";
@@ -12,23 +13,28 @@ audit_content.html(`<div id="app"></div>`);
 
 function add_data_buttons() {
 
-  // add a new button
-  let url = `https://spreadsheets.google.com/tq?tqx=out:csv&key=${GID}&sheet=${SHEETNAME}`;
-  let btn = `<a href="${url}" class="btn btn-primary btn-block btn-block">
+  // revenue button
+  let revenue_url = "https://raw.githubusercontent.com/PhiladelphiaController/RevisedBudgetFY20-FY25/master/src/data/revenue_revisions.csv";
+  let revenue_btn = `<a href="${revenue_url}" class="btn btn-primary btn-block btn-block">
             <i class="fas fa-download"></i>
-            Download Data
+            Download Revenue Data
+        </a>`;
+
+  // spending button
+  let spending_url = "https://raw.githubusercontent.com/PhiladelphiaController/RevisedBudgetFY20-FY25/master/src/data/budget_revisions_by_major_class.csv";
+  let spending_btn = `<a href="${spending_url}" class="btn btn-primary btn-block btn-block">
+            <i class="fas fa-download"></i>
+            Download Spending Data
         </a>`;
 
   // add download data button and remove the report button
-  $(".entry-header .btn").after(btn);
-  $(".entry-header .btn")
-    .first()
-    .remove();
+  $(".entry-header .btn").after(revenue_btn).after(spending_btn).first().remove();
 }
 
+add_data_buttons()
 
 // add help message
-let helpMessage = `<p class='help-message'>
+let helpMessage = `<p class='help-message mt-2'>
   Comments or feedback? Please contact
   <a href="mailto:controller.policy@phila.gov">controller.policy@phila.gov</a>.
   </p>`;
