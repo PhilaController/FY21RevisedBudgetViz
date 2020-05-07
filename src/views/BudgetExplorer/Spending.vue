@@ -34,16 +34,16 @@ export default {
           "By Category"
         ],
         groupby: {
-          "All Changes": "dept_name",
-          "By Department": "dept_name",
+          "All Changes": "name",
+          "By Department": "name",
           "By Major Class": "major_class_description",
           "By Category": "major_class_description"
         },
-        childColumns: { dept_name: "name" },
+        childColumns: {},
         headerColumns: [
           {
             label: "Name",
-            field: "dept_name"
+            field: "name"
           },
           {
             label: "Major Class",

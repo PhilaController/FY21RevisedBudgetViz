@@ -416,14 +416,9 @@ export default {
           if (color) {
             color = `${color.slice(0, -1)}, 0.5)`;
             $(x).css("background-color", color);
-            if (i !== cells.length - 2) $(x).css("border-bottom-color", color);
+            $(x).css("border-bottom-color", color);
           }
         });
-
-        let R = $(this.$refs.budgetTable.$el).find("tr");
-        R.eq(rows.length - 2)
-          .find(`${cellType}`)
-          .css("border-bottom-color", "#2c3e50");
       }
     },
     onSortChange(params) {
@@ -1119,9 +1114,6 @@ export default {
 }
 .bubble_group_sublabel_positive {
   fill: #398649;
-}
-.summary-row th {
-  border-top-color: black !important;
 }
 
 @media screen and (max-width: 768px) {
