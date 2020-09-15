@@ -37,17 +37,24 @@ export default {
           "All Changes": "name",
           "By Department": "name",
           "By Major Class": "major_class_description",
-          "By Category": "major_class_description"
+          "By Category": "category_code_description"
         },
         childColumns: {},
         headerColumns: [
           {
             label: "Name",
-            field: "name"
+            field: "name",
+            required: true
           },
           {
             label: "Major Class",
-            field: "major_class_description"
+            field: "major_class_description",
+            required: true
+          },
+          {
+            label: "Category",
+            field: "category_code_description",
+            required: false
           }
         ]
       },

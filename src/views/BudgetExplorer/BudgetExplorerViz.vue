@@ -155,14 +155,18 @@ export default {
     tableColumns() {
       // Reorder the header columns in the table
       let groupby = this.tableConfig.groupby[this.viewingMode];
-      let i;
-      for (i = 0; i < this.tableConfig.headerColumns.length; i++) {
-        if (this.tableConfig.headerColumns[i].field == groupby) break;
+      let keyIndex;
+      let cols = [];
+      for (let i = 0; i < this.tableConfig.headerColumns.length; i++) {
+        let isKey = this.tableConfig.headerColumns[i].field == groupby;
+        if (this.tableConfig.headerColumns[i].required | isKey) {
+          cols.push(this.tableConfig.headerColumns[i]);
+        }
+        if (isKey) keyIndex = cols.length - 1;
       }
 
       // Reorder
-      let cols = Object.assign([], this.tableConfig.headerColumns);
-      cols.move(i, 0);
+      cols.move(keyIndex, 0);
 
       // Add the rest of the columns we need
       let tag = this.fiscalYear.toString().slice(2);
@@ -337,6 +341,12 @@ export default {
         this.colorPercentDiffCells();
       });
     },
+    tableColumns(newValue, oldValue) {
+      this.$nextTick(() => {
+        $(".summary-row").remove();
+        this.colorPercentDiffCells();
+      });
+    },
     viewingMode(newMode, oldMode) {
       // Set the split view boolean
       this.splitView = newMode != "All Changes";
@@ -380,11 +390,22 @@ export default {
       let diff = revised - proposed;
       let percent_diff = diff / proposed;
 
-      table.append(
-        `<tfoot class='summary-row'>
+      // Figure out how many rows
+      let ncols = this.tableColumns.length;
+      let row;
+      if (ncols == 6)
+        row = `<tfoot class='summary-row'>
+        <th class="vgt-row-header vgt-left-align">Total</th>
+        <th class="vgt-row-header vgt-left-align"></th>`;
+      else
+        row = `<tfoot class='summary-row'>
         <th class="vgt-row-header vgt-left-align">Total</th>
         <th class="vgt-row-header vgt-left-align"></th>
-        <th class="vgt-row-header vgt-right-align">${formatFn(proposed)}</th>
+        <th class="vgt-row-header vgt-left-align"></th>`;
+
+      row =
+        row +
+        `<th class="vgt-row-header vgt-right-align">${formatFn(proposed)}</th>
         <th class="vgt-row-header vgt-right-align">${formatFn(revised)}</th>
         <th class="vgt-row-header vgt-right-align">${netChangeFormatFn(
           diff
@@ -392,8 +413,9 @@ export default {
         <th class="vgt-row-header vgt-right-align">${percentFn(
           percent_diff
         )}</th>
-        </tfoot>`
-      );
+        </tfoot>`;
+
+      table.append(row);
     },
     colorPercentDiffCells() {
       if (this.fillColorScale) {
@@ -405,7 +427,11 @@ export default {
             ? "th"
             : "td";
 
-        let cells = rows.find(`${cellType}:nth-child(6)`);
+        rows.find(`${cellType}`).each((i, x) => {
+          $(x).css("background-color", "#fff");
+          $(x).css("border-bottom-color", "#dcdfe6");
+        });
+        let cells = rows.find(`${cellType}:last`);
 
         cells.each((i, x) => {
           let p = $(x)[0].innerText.slice(0, -1);

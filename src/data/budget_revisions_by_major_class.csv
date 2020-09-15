@@ -251,20 +251,20 @@ Materials/Equip.,0,0,0,0,0,0,Finance,Finance & Administration,Indemnities,0.0,0.
 Payments to Other Funds,0,0,0,0,0,0,Finance,Finance & Administration,Indemnities,0.0,0.0,0.0,0.0,0.0,0.0
 Personal Services,0,0,0,0,0,0,Finance,Finance & Administration,Indemnities,0.0,0.0,0.0,0.0,0.0,0.0
 Purchase of Services,0,0,0,0,0,0,Finance,Finance & Administration,Indemnities,0.0,0.0,0.0,0.0,0.0,0.0
-Advances & Misc.,0,0,0,0,0,0,Finance,Finance & Administration,Disability Reg #32 Payroll,0.0,0.0,0.0,0.0,0.0,0.0
 Advances & Misc.,0,0,0,0,0,0,Finance,Finance & Administration,Refunds,0.0,0.0,0.0,0.0,0.0,0.0
-Contrib./Indemnities,250000,250000,250000,250000,250000,250000,Finance,Finance & Administration,Disability Reg #32 Payroll,250000.0,250000.0,250000.0,250000.0,250000.0,250000.0
 Contrib./Indemnities,250000,250000,250000,250000,250000,250000,Finance,Finance & Administration,Refunds,250000.0,250000.0,250000.0,250000.0,250000.0,250000.0
-Debt Service,0,0,0,0,0,0,Finance,Finance & Administration,Disability Reg #32 Payroll,0.0,0.0,0.0,0.0,0.0,0.0
 Debt Service,0,0,0,0,0,0,Finance,Finance & Administration,Refunds,0.0,0.0,0.0,0.0,0.0,0.0
-Materials/Equip.,0,0,0,0,0,0,Finance,Finance & Administration,Disability Reg #32 Payroll,0.0,0.0,0.0,0.0,0.0,0.0
 Materials/Equip.,0,0,0,0,0,0,Finance,Finance & Administration,Refunds,0.0,0.0,0.0,0.0,0.0,0.0
-Payments to Other Funds,0,0,0,0,0,0,Finance,Finance & Administration,Disability Reg #32 Payroll,0.0,0.0,0.0,0.0,0.0,0.0
 Payments to Other Funds,0,0,0,0,0,0,Finance,Finance & Administration,Refunds,0.0,0.0,0.0,0.0,0.0,0.0
-Personal Services,2650000,2650000,2650000,2650000,2650000,2650000,Finance,Finance & Administration,Disability Reg #32 Payroll,2650000.0,2650000.0,2650000.0,2650000.0,2650000.0,2650000.0
-Personal Services,2650000,2650000,2650000,2650000,2650000,2650000,Finance,Finance & Administration,Refunds,2650000.0,2650000.0,2650000.0,2650000.0,2650000.0,2650000.0
-Purchase of Services,0,0,0,0,0,0,Finance,Finance & Administration,Disability Reg #32 Payroll,0.0,0.0,0.0,0.0,0.0,0.0
+Personal Services,0,0,0,0,0,0,Finance,Finance & Administration,Refunds,0.0,0.0,0.0,0.0,0.0,0.0
 Purchase of Services,0,0,0,0,0,0,Finance,Finance & Administration,Refunds,0.0,0.0,0.0,0.0,0.0,0.0
+Advances & Misc.,0,0,0,0,0,0,Finance,Finance & Administration,Disability Reg #32 Payroll,0.0,0.0,0.0,0.0,0.0,0.0
+Contrib./Indemnities,0,0,0,0,0,0,Finance,Finance & Administration,Disability Reg #32 Payroll,0.0,0.0,0.0,0.0,0.0,0.0
+Debt Service,0,0,0,0,0,0,Finance,Finance & Administration,Disability Reg #32 Payroll,0.0,0.0,0.0,0.0,0.0,0.0
+Materials/Equip.,0,0,0,0,0,0,Finance,Finance & Administration,Disability Reg #32 Payroll,0.0,0.0,0.0,0.0,0.0,0.0
+Payments to Other Funds,0,0,0,0,0,0,Finance,Finance & Administration,Disability Reg #32 Payroll,0.0,0.0,0.0,0.0,0.0,0.0
+Personal Services,2650000,2650000,2650000,2650000,2650000,2650000,Finance,Finance & Administration,Disability Reg #32 Payroll,2650000.0,2650000.0,2650000.0,2650000.0,2650000.0,2650000.0
+Purchase of Services,0,0,0,0,0,0,Finance,Finance & Administration,Disability Reg #32 Payroll,0.0,0.0,0.0,0.0,0.0,0.0
 Advances & Misc.,55108000,56705000,58356000,58356000,58356000,58356000,Finance,Budget Reserves,Recession Reserve,18403000.0,50000000.0,70000000.0,30000000.0,25000000.0,25000000.0
 Contrib./Indemnities,0,0,0,0,0,0,Finance,Budget Reserves,Recession Reserve,0.0,0.0,0.0,0.0,0.0,0.0
 Debt Service,0,0,0,0,0,0,Finance,Budget Reserves,Recession Reserve,0.0,0.0,0.0,0.0,0.0,0.0

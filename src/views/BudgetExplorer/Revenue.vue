@@ -31,11 +31,13 @@ export default {
         headerColumns: [
           {
             label: "Name",
-            field: "name"
+            field: "name",
+            required: true
           },
           {
             label: "Revenue Source",
-            field: "revenue_source"
+            field: "revenue_source",
+            required: true
           }
         ]
       },
