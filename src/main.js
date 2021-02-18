@@ -3,8 +3,6 @@ import Vue from "vue";
 import App from "@/App";
 import router from "@/router";
 
-// make FA does not watch SVG elements
-if (window.FontAwesome) window.FontAwesome.config.observeMutations = false;
 Vue.config.productionTip = false;
 
 // load and set the HTML template we are using

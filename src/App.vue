@@ -17,7 +17,14 @@
 <script>
 export default {
   name: "app",
-  components: {}
+  components: {},
+  created() {
+    // IMPORTANT: make sure FA does not watch SVG elements
+    if (window.FontAwesome) {
+      window.FontAwesome.config.observeMutations = false;
+      window.FontAwesome.config.searchPseudoElements = false;
+    }
+  },
 };
 </script>
 
